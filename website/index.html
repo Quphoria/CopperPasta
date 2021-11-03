@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en" class="fontawesome-i2svg-active fontawesome-i2svg-complete">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Image copy paste sharing tool">
+    <meta name="author" content="Samuel Simpson">
+    <link rel="icon" href="images/favicon.ico">
+    <link href='https://fonts.googleapis.com/css?family=Exo 2' rel='stylesheet'>
+    <title>Copper Pasta</title>
+    <!-- Font Awesome CSS -->
+    <link rel="stylesheet" href="vendor/fontawesome-5.15.1/font-awesome.min.css">
+    <!-- Remix icon CSS -->
+    <link rel="stylesheet" href="vendor/remixicon-2.5.0/remixicon.css">
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="vendor/bootstrap-4.3.1/bootstrap.min.css">
+    <!-- Roboto CSS -->
+    <link rel="stylesheet" href="vendor/fonts/roboto/roboto.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/pasta.css">
+</head>
+<body id="content" style="font-family: Roboto, sans-serif;" class="mh-100 h-100 overflow-hidden">
+    <div id="loadingOverlay">
+        <div class="spinner-border text-light loading-overlay-spinner" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
+    </div>
+    <div id="notificationOverlay" style="display:none;">
+        <div class="d-flex flex-row justify-content-center align-items-start pt-5">
+            <span id="notificationBadge" class="mt-5 badge badge-pill badge-info">Copied!</span>
+        </div>
+    </div>
+    <div id="welcomeModal" class="modal hide fade mh-100" tabindex="-1" role="alertdialog" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title text-dark">
+                        Welcome to Pasta
+                    </h5>
+                </div>
+                <div class="modal-body mh-100">
+                    <p>
+                        Enter a scrapbook code here or press <i>'New Scrapbook'</i>
+                    </p>
+                    <form id="joinForm" class="input-group mb-3">
+                        <input type="text" id="scrapbookNameInput" name="scrapbook" pattern="[a-z\-]+" class="form-control" placeholder="Scrapbook Code" required autofocus="autofocus"
+                            aria-label="Scrapbook Code" aria-describedby="button-addon2" title="Code should only contain lowercase letters (a-z) and dashes (-)">
+                        <div class="input-group-append">
+                            <button class="btn btn-success" type="submit" id="openScrapbook" disabled>Open Scrapbook</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="newScrapbook" class="btn btn-primary" disabled>
+                        New Scrapbook
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="errorModal" class="modal hide fade mh-100" tabindex="-1" role="alertdialog">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title text-danger">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        &nbsp;<span id="errorModalTitle"></span>
+                    </h5>
+                </div>
+                <div class="modal-body mh-100">
+                    <p id="errorModalBody">Modal body text goes here.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary error-modal-btn" data-dismiss="modal" data-bs-dismiss="modal">
+                        Close
+                    </button>
+                    <button type="button" id="deleteScrapbookForReal" class="btn btn-danger delete-modal-btn" data-dismiss="modal" data-bs-dismiss="modal">
+                        DELETE
+                    </button>
+                    <button type="button" class="btn btn-primary delete-modal-btn" data-dismiss="modal" data-bs-dismiss="modal">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="previewModal" class="modal hide fade" tabindex="-1" role="alertdialog">
+        <div class="modal-dialog modal-dialog-centered justify-content-center" style="width: auto !important; min-width: 500px; max-width: 80%">
+            <div class="modal-content" style="width: auto !important;">
+                <div class="modal-header">
+                    <h5 class="modal-title text-dark">
+                        <i class="fas fa-plus-circle"></i>
+                        &nbsp;<span id="previewModalTitle"></span>
+                    </h5>
+                </div>
+                <div class="modal-body" style="display: inline-block;">
+                    <p id="previewModalBody">Modal body text goes here.</p>
+                    <div id="previewModalTextPreview" class="border rounded p-2" style="max-height:60vh; overflow-y: auto;">
+                        <code id="previewModalTextPreviewData" class="text-dark"></code>
+                    </div>
+                    <div id="previewModalImagePreview" class="border rounded p-2" style="display: inline-block;">
+                        <img id="previewModalImagePreviewData" class="img-fluid"
+                            src="images/missing.svg"
+                            style="max-height:60vh; max-width:60vw"
+                            />
+                    </div>
+                    <div class="padd flex-fill"></div>
+                </div>
+                <div class="modal-footer">
+                    <button id="modalPostButton" type="button" class="btn btn-success" data-dismiss="modal" data-bs-dismiss="modal">
+                        Post
+                    </button>
+                    <button type="button" class="btn btn-danger" data-dismiss="modal" data-bs-dismiss="modal">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="page_templates" class="d-none">
+        <template id="postHeader">
+            <div class="d-flex justify-content-left flex-row align-items-center">
+                <span class="post-type"></span>
+                <span class="post-time ml-3 text-success"></span>
+                <div class="ml-5 text-secondary">From: <span class="post-client font-italic"></span></div>
+                <i class="copy-icon ml-auto text-primary ri-file-copy-line"></i>
+            </div>
+        </template>
+        <template id="textPost">
+            <div class="my-3 text-post card bg-dark overflow-hidden">
+                <div class="card-header bg-darker-dark overflow-hidden"></div>
+                <code class="card-body text-light mx-3 overflow-hidden"></code>
+            </div>
+        </template>
+        <template id="imagePost">
+            <div class="my-3 image-post card bg-dark overflow-hidden">
+                <div class="card-header bg-darker-dark overflow-hidden"></div>
+                <img class="post-image card-body overflow-hidden"
+                 src="images/missing.svg"
+                 onclick="openImageInNewTab(event)"
+                 />
+            </div>
+        </template>
+    </div>
+    <div id="page_content" class="p-1 bg-dark text-light d-flex mh-100 vh-100 flex-column">
+        <h2 style="font-family: 'Exo 2';" class="mt-1 text-center">
+            Copper Pasta
+        </h2>
+        <div id="posts-scroll-wrapper" class="mt-1 mx-3 mb-3 card text-white bg-darker-dark flex-fill mh-100" style="overflow-y: scroll;">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4 class="mb-0 align-middle">
+                    <span>Scrapbook: </span>
+                    <span id="scrapbookName" class="font-italic text-scrapbook-name"></span>
+                    <i id="copyScrapbookName" class="copy-icon text-scrapbook-name align-middle ri-file-copy-line"></i>
+                </h4>
+                <button type="button" id="deleteScrapbook" class="btn btn-danger">
+                    Delete Scrapbook
+                </button>
+            </div>
+            <div id="posts-area" class="card-body p-3 bg-secondary">
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript loaded at end -->
+    <!-- jQuery first, then Bootstrap JS, then Fontawesome, and then custom JS scripts -->
+    <script src="vendor/jquery-3.1.1/jquery.min.js"></script>
+    <script src="vendor/bootstrap-4.3.1/bootstrap.min.js"></script>
+    <script src="vendor/fontawesome-5.15.1/all.js"></script>
+    <!-- Custom JS -->
+    <script src="js/pasta.js"></script>
+</body>
+</html>
+

@@ -1,0 +1,16 @@
+# /etc/systemd/system/pasta.service
+
+[Unit]
+Description=Gunicorn instance to serve pasta
+After=network.target
+
+[Service]
+User=owner
+Group=www-data
+WorkingDirectory=/home/owner/webapps/pasta/api
+Environment="PATH=/home/owner/webapps/pasta/api/env/bin" "LD_LIBRARY_PATH=/usr/local/lib"
+#ExecStart=/home/owner/webapps/pasta/api/env/bin/gunicorn --workers 3 --bind unix:api.sock -m 007 wsgi:app
+ExecStart=/home/owner/webapps/pasta/api/env/bin/gunicorn --workers 3 --bind 0.0.0.0:5000 -m 007 wsgi:app
+
+[Install]
+WantedBy=multi-user.target
