@@ -9,6 +9,8 @@ secure_cookies = True
 cookie_path = "/api/"
 cors_origin = "https://pasta.quphoria.co.uk"
 
+MAX_CONTENT_LENGTH = 32 * 1024 * 1024 # 32MB max content length
+
 server_db.database_file = os.path.join(sys.path[0], "pasta.db")
 
 words = []
@@ -74,7 +76,7 @@ def api_paste():
         resp = _build_cors_preflight_response()
         resp.headers.add('Access-Control-Allow-Methods', "PUT, OPTIONS")
         return resp
-    elif request.method == "PUT" and check_auth_headers(request):
+    elif request.method == "PUT" and check_auth_headers(request) and request.content_length < MAX_CONTENT_LENGTH:
         data = request.get_json()
         uuid = request.cookies.get("uuid")
         if data and "scrapbook" in data and "type" in data and "data" in data and validate_uuid(uuid):
