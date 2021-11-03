@@ -85,6 +85,14 @@ function handlePaste(event) {
             }, false);
             reader.readAsDataURL(file);
             break;
+        case "text/plain":
+            reader = new FileReader();
+            reader.addEventListener("load", function () {
+                // convert text file to text string
+                handleTextPaste(reader.result);
+            }, false);
+            reader.readAsText(file);
+            break;
         default:
             showErrorModal("Error", "Unknown file type: " + file.type);
             return;
