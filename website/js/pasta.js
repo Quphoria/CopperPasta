@@ -343,8 +343,12 @@ function openScrapbook(code="") {
                 refreshTimer = setInterval(refreshPosts, refreshInterval);
             }
         }
-    }).fail(() => {
-        showErrorModal("Error", "Failed to load scrapbook");
+    }).fail((error) => {
+        if (error.status == 404) {
+            showErrorModal("Error", "Scrapbook not found");
+        } else {
+            showErrorModal("Error", "Failed to load scrapbook");
+        }
     });
 }
 
