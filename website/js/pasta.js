@@ -360,7 +360,10 @@ function openScrapbook(code="") {
     });
 }
 
+var refreshing_pastes = false;
+
 function refreshPosts(deletionForce=false) {
+    if (refreshing_pastes) { return; }
     if ($('#errorModal').is(':visible') && !deletionForce) {
         return; // Don't refresh while error modal open
     }
@@ -368,6 +371,7 @@ function refreshPosts(deletionForce=false) {
         start_id: last_post_id,
         scrapbook: scrapbook_id
     };
+    refreshing_pastes = true;
     $.ajax(api_url + "/pastes", {
         type: "POST",
         cache: false,
@@ -378,10 +382,11 @@ function refreshPosts(deletionForce=false) {
         xhrFields: {
             withCredentials: true
         },
+        complete: () => { refreshing_pastes = false; }, // after success or error
         success: (data) => {
             if (data) {
                 try {
-                    var createdPost = false;
+                    var createdPosts = 0;
                     if (Array.isArray(data)) {
                         for (paste of data) {
                             if (!pasteExists(paste[0])) {
@@ -391,7 +396,7 @@ function refreshPosts(deletionForce=false) {
                                     client: paste[3],
                                     timestamp: paste[4]
                                 });
-                                createdPost = true;
+                                createdPosts++;
                                 if (paste[0] > last_post_id) {
                                     last_post_id = paste[0];
                                 }
@@ -408,8 +413,12 @@ function refreshPosts(deletionForce=false) {
                     } else {
                         showErrorModal("Error", "Failed to refresh pastes");
                     }
-                    if (createdPost) {
+                    if (createdPosts) {
                         $("#posts-scroll-wrapper").animate({scrollTop: 0}, 1000);
+                        if (createPosts >= 5) { // Load more posts since server only sends 5 at a time
+                            refreshing_pastes = false;
+                            refreshPosts();
+                        }
                     }
                 } catch (e) {
                     showErrorModal("Error", "Failed to refresh pastes");
@@ -419,6 +428,7 @@ function refreshPosts(deletionForce=false) {
         }
     }).fail(() => {
         showErrorModal("Error", "Failed to refresh pastes");
+        refreshing_pastes = false;
     });
 }
 
