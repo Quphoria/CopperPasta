@@ -180,7 +180,7 @@ function createPost(data, info) {
 
 function createTextPost(text, info) {
     var newPost = $($("#textPost").html());
-    newPost.data("id", info.id);
+    newPost.attr("data-id", info.id.toString());
     var text_elem = newPost.children('.card-body');
     text_elem.text(text);
     newPost.children('.card-header').append(createCardHeader(info));
@@ -194,7 +194,7 @@ function createTextPost(text, info) {
 
 function createImagePost(image, info) {
     var newPost = $($("#imagePost").html());
-    newPost.data("id", info.id);
+    newPost.attr("data-id", info.id.toString());
     var image_elem = newPost.children('.card-body');
     image_elem.attr("src", image);
     newPost.children('.card-header').append(createCardHeader(info));
@@ -217,7 +217,7 @@ function createImagePost(image, info) {
 
 function createErrorPost(text, info) {
     var newPost = $($("#textPost").html());
-    newPost.data("id", info.id);
+    newPost.attr("data-id", info.id.toString());
     var text_elem = newPost.children('.card-body');
     text_elem.text(text);
     text_elem.removeClass("text-light");
@@ -423,7 +423,7 @@ function refreshPosts(deletionForce=false) {
 }
 
 function pasteExists(id) {
-    return false;
+    return $("#posts-area").find(`[data-id="${id}"]`).length == 0;
 }
 
 function previewModalPost() {
