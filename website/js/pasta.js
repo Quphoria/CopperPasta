@@ -1,6 +1,6 @@
 
 const debug = false;
-const api_url = "https://pasta.quphoria.co.uk/api";
+const api_url = "/api";
 // const api_url = "http://localhost:8080";
 const refreshInterval = 10000; // 10 second refresh interval
 
