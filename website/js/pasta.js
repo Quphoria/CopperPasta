@@ -3,6 +3,8 @@ const debug = false;
 const api_url = "/api";
 // const api_url = "http://localhost:8080";
 const refreshInterval = 10000; // 10 second refresh interval
+const MAX_FILE_SIZE = 16 * 1024 * 1024; // 8MB file limit
+const MAX_FILE_SIZE_MESSAGE = "File larger than 16MB";
 
 var post_data = {};
 var last_post_id = 0;
@@ -36,6 +38,15 @@ $(function() {
     $("#scrapbookNameInput").change(() => {
         $("#scrapbookNameInput").val($("#scrapbookNameInput").val().toLowerCase());
     });
+    $('html').on('dragover', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+    });
+    $('html').on('dragenter', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+    });
+    $('html').on("drop", handleDrop);
     doAuth();
     console.log("Loaded!");
 });
@@ -129,10 +140,59 @@ function handleImagePaste(image) {
     showPreviewModal("Preview", "Post Image?", "image", image);
 }
 
+function humanFileSize(size) {
+    var i = size == 0 ? 0 : Math.floor( Math.log(size) / Math.log(1024) );
+    return ( size / Math.pow(1024, i) ).toFixed(2) * 1 + ' ' + ['B', 'KB', 'MB', 'GB', 'TB'][i];
+}
+
+function handleDrop(event) {
+    console.log('File(s) dropped');
+    
+    // Prevent default behavior (Prevent file from being opened)
+    event.preventDefault();
+
+    const dataTransfer = event.originalEvent.dataTransfer;
+
+    if (dataTransfer.files.length == 0) {
+        showErrorModal("Error", "No files dropped");
+        return;
+    } else if (dataTransfer.files.length > 1) {
+        showErrorModal("Error", "You can only drop 1 file at a time");
+        return;
+    }
+    
+    const file = dataTransfer.files[0];
+
+    if (file.size > MAX_FILE_SIZE) {
+        showErrorModal("Error", MAX_FILE_SIZE_MESSAGE);
+        return;
+    }
+
+    console.log(file);
+
+    console.log(file.type);
+
+    if (file.name.start)
+
+    console.log(file.name); 
+
+    reader = new FileReader();
+    reader.addEventListener("load", function () {
+        // convert image file to base64 string
+        post_data = {
+            type: "file",
+            data: btoa(file.name) + "|" + humanFileSize(file.size) + "|" + reader.result
+        };
+        showPreviewModal("Preview", "Post File?", "file", file);
+    }, false);
+    reader.readAsDataURL(file);
+}
+
 function showPreviewModal(title, body, type, data) {
     hideModals();
     $("#previewModalTextPreview").toggle(type=="text");
     $("#previewModalImagePreview").toggle(type=="image");
+    $("#previewModalFilePreview").toggle(type=="file");
     $("#previewModalTextPreviewData").html("No Data");
     $("#previewModalImagePreviewData").attr("src","images/missing.svg");
     switch (type) {
@@ -141,6 +201,11 @@ function showPreviewModal(title, body, type, data) {
             break;
         case "image":
             $("#previewModalImagePreviewData").attr("src",data);
+            break;
+        case "file":
+            $("#previewModalFilePreviewFilename").text(data.name);
+            $("#previewModalFilePreviewSize").text(humanFileSize(data.size));
+            $("#previewModalFilePreviewType").text(data.type == "" ? "Unknown type" : data.type);
             break;
     }
     $('#previewModalTitle').html(title);
@@ -177,6 +242,9 @@ function createPost(data, info) {
             break;
         case "image":
             createImagePost(data, info);
+            break;
+        case "file":
+            createFilePost(data, info);
             break;
         case "Error":
             createErrorPost(data, info);
@@ -224,6 +292,38 @@ function createImagePost(image, info) {
     newPost.prependTo("#posts-area");
 }
 
+function createFilePost(file, info) {
+    var first_break = file.indexOf('|');
+    var second_break = file.indexOf('|', first_break+1);
+    var filename = atob(file.substr(0,first_break));
+    var size = file.substr(first_break+1,second_break-first_break-1);
+    var data_uri = file.substr(second_break+1);
+    let mimeType = data_uri.split(",", 1)[0].match(/[^:\s*]\w+\/[\w-+\d.]+(?=[;| ])/)[0];
+
+    var newPost = $($("#filePost").html());
+    var newPostBody = newPost.children(".post-file");
+    newPost.attr("data-id", info.id.toString());
+    newPostBody.children('.file-name').text(filename);
+    newPostBody.children('.file-size').text(size);
+    newPostBody.children('.file-type').text(mimeType == "" ? "Unknown type" : mimeType);
+    var dl_btn_elem = newPostBody.children('.file-dl-btn');
+    var file_type_warn_elem = newPostBody.children(".file-type-warn");
+    var file_type_warn_check_elem = file_type_warn_elem.children('.file-type-warn-check');
+    dl_btn_elem.data("filename", filename);
+    dl_btn_elem.data("file", data_uri);
+    dl_btn_elem.click(downloadFileButton);
+    file_type_warn_check_elem.change(() => {
+        dl_btn_elem.prop("disabled", !file_type_warn_check_elem.is(":checked"));
+    });
+    if (!(mimeType == "" || mimeType.startsWith("application"))) {
+        file_type_warn_elem.hide();
+        dl_btn_elem.prop("disabled", false);
+    }
+    newPost.children('.card-header').append(createCardHeader(info));
+    newPost.find(".copy-icon").hide();
+    newPost.prependTo("#posts-area");
+}
+
 function createErrorPost(text, info) {
     var newPost = $($("#textPost").html());
     newPost.attr("data-id", info.id.toString());
@@ -244,6 +344,9 @@ function createCardHeader(info) {
             break;
         case "image":
             newPostInfo.find('.post-type').html('<i class="ri-image-line"></i>');
+            break;
+        case "file":
+            newPostInfo.find('.post-type').html('<i class="ri-file-line"></i>');
             break;
     }
     newPostInfo.find('.post-client').text(info.client);
@@ -554,4 +657,21 @@ function getCookie(key) {
 function eraseCookie(key) {
     var keyValue = getCookie(key);
     setCookie(key, keyValue, '-1');
+}
+
+function downloadFileButton(event) {
+    console.log(event);
+    const filename = $(event.target).data("filename");
+    const file = $(event.target).data("file");
+
+    var link = document.createElement("a");
+    // If you don't know the name or want to use
+    // the webserver default set name = ''
+    link.setAttribute('download', filename);
+    link.setAttribute('target', '_blank');
+    link.href = file;
+    link.innerText = "Download";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 }

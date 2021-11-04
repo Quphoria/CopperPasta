@@ -81,12 +81,12 @@ def api_paste():
         uuid = request.cookies.get("uuid")
         if data and "scrapbook" in data and "type" in data and "data" in data and validate_uuid(uuid):
             try:
+                assert data["type"] in ["text", "image", "file"], "Invalid type: " + data["type"]
                 new_post = server_db.create_post(data["scrapbook"], data["type"], data["data"], uuid)
                 if new_post:
                     return gen_resp(201, new_post)
             except Exception as ex:
                 print("Error creating paste:", ex)    
-        print("IDK WHY"); 
     return gen_resp(500, None)
 
 @web_api.route('/pastes', methods=['POST', 'OPTIONS'])
