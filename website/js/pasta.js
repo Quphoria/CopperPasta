@@ -431,7 +431,7 @@ function refreshPosts(deletionForce=false) {
 }
 
 function pasteExists(id) {
-    return $("#posts-area").find(`[data-id="${id}"]`).length == 0;
+    return $("#posts-area").find(`[data-id="${id}"]`).length > 0;
 }
 
 function previewModalPost() {
