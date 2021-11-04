@@ -27,6 +27,9 @@ $(function() {
             showNotification("Copied.");
         }
     });
+    $("#mobilePasteInput").change(() => {
+        $("#mobilePasteInput").val("");
+    })
     doAuth();
     console.log("Loaded!");
 });
