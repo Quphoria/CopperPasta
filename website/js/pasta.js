@@ -27,12 +27,9 @@ $(function() {
             showNotification("Copied.");
         }
     });
-    $("#mobilePasteInput").change(() => {
-        $("#mobilePasteInput").val("");
-    })
     $("#scrapbookNameInput").change(() => {
         $("#scrapbookNameInput").val($("#scrapbookNameInput").val().toLowerCase());
-    })
+    });
     doAuth();
     console.log("Loaded!");
 });
