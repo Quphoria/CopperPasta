@@ -327,6 +327,11 @@ function enableWelcomeForm() {
     $("#openScrapbook").prop("disabled", false);
     $("#scrapbookNameInput").focus();
     loadLastScrapbookCookie();
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get("s")) {
+        $("#scrapbookNameInput").val(urlParams.get("s"));
+        $("#openScrapbook").click();
+    }
 }
 
 function joinFormSubmit(event) {
@@ -364,7 +369,7 @@ function openScrapbook(code="") {
             if (data && data.scrapbook) {
                 scrapbook_id = data.scrapbook;
                 $("#scrapbookName").text(scrapbook_id);
-                setCookie("last_scrapbook", data.scrapbook, 1); // Only last 1 day
+                setCookie("last_scrapbook", scrapbook_id, 1); // Only last 1 day
                 $("#welcomeModal").modal("hide");
                 refreshPosts();
                 refreshTimer = setInterval(refreshPosts, refreshInterval);
