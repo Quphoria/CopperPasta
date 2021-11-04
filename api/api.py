@@ -97,7 +97,8 @@ def api_paste():
                 assert data["type"] in ["text", "image", "file"], "Invalid type: " + data["type"]
                 new_post = server_db.create_post(data["scrapbook"], data["type"], data["data"], uuid)
                 if new_post:
-                    return gen_resp(201, new_post)
+                    # Just return post id
+                    return gen_resp(201, {"created": new_post[0]})
             except Exception as ex:
                 print("Error creating paste:", ex)    
     return gen_resp(500, None)
