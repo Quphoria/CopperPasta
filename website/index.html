@@ -19,7 +19,7 @@
     <!-- Roboto CSS -->
     <link rel="stylesheet" href="vendor/fonts/roboto/roboto.css">
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="css/pasta.css">
+    <link rel="stylesheet" href="css/pasta.css?v=1">
 </head>
 <body id="content" style="font-family: Roboto, sans-serif;" class="mh-100 h-100 overflow-hidden">
     <div id="loadingOverlay">
@@ -155,9 +155,14 @@
                     <span id="scrapbookName" class="font-italic text-scrapbook-name"></span>
                     <i id="copyScrapbookName" class="copy-icon text-scrapbook-name align-middle ri-file-copy-line"></i>
                 </h4>
-                <button type="button" id="deleteScrapbook" class="btn btn-danger">
-                    Delete Scrapbook
-                </button>
+                <div class="d-flex flex-column justify-content-between">
+                    <button type="button" id="deleteScrapbook" class="btn btn-danger">
+                        Delete Scrapbook
+                    </button>
+                    <textarea class="mobile-only form-control" rows=1 
+                        placeholder="Paste Here"
+                    ></textarea>
+                </div>
             </div>
             <div id="posts-area" class="card-body p-3 bg-secondary">
             </div>
@@ -170,7 +175,7 @@
     <script src="vendor/bootstrap-4.3.1/bootstrap.min.js"></script>
     <script src="vendor/fontawesome-5.15.1/all.js"></script>
     <!-- Custom JS -->
-    <script src="js/pasta.js"></script>
+    <script src="js/pasta.js?v=1"></script>
 </body>
 </html>
 

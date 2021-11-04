@@ -61,6 +61,11 @@ code {
     color: #1bd3f0!important;
 }
 
+@media (hover: hover) {
+    /* Show input textarea on mobile devices where paste requires an input */
+    .mobile-only { display: none!important; }
+}
+
 /* Scrollbar stuff */
 
 :root {
