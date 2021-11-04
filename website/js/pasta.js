@@ -146,10 +146,12 @@ function humanFileSize(size) {
 }
 
 function handleDrop(event) {
-    console.log('File(s) dropped');
-    
     // Prevent default behavior (Prevent file from being opened)
     event.preventDefault();
+    if (!(uuid && scrapbook_id)) {
+        // Require uuid and scrapbook id but still prevent default
+        return;
+    }
 
     const dataTransfer = event.originalEvent.dataTransfer;
 
