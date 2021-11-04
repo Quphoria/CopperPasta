@@ -42,13 +42,16 @@
                     <p>
                         Enter a scrapbook code here or press <i>'New Scrapbook'</i>
                     </p>
-                    <form id="joinForm" class="input-group mb-3">
+                    <form id="joinForm" class="input-group">
                         <input type="text" id="scrapbookNameInput" name="scrapbook" pattern="[a-z\-]+" class="form-control" placeholder="Scrapbook Code" required autofocus="autofocus"
                             aria-label="Scrapbook Code" aria-describedby="button-addon2" title="Code should only contain lowercase letters (a-z) and dashes (-)">
                         <div class="input-group-append">
                             <button class="btn btn-success" type="submit" id="openScrapbook" disabled>Open Scrapbook</button>
                         </div>
                     </form>
+                    <div class="text-secondary font-italic mt-2" style="font-size: 0.8em">
+                        By using this site you agree to the use of essential cookies
+                    </div>
                 </div>
                 <div class="modal-footer d-flex flex-row justify-content-end">
                     <button type="button" id="lastScrapbook" class="btn btn-secondary hidden mr-auto" style="display:none;" disabled>
@@ -196,8 +199,8 @@
             <div id="posts-area" class="card-body p-3 bg-secondary">
             </div>
         </div>
+        <div class="text-secondary font-italic text-center" style="font-size: 0.9em">Quphoria, 2021</div>
     </div>
-    <div id="dl-temp" hidden></div>
 
     <!-- JavaScript loaded at end -->
     <!-- jQuery first, then Bootstrap JS, and then custom JS scripts -->
