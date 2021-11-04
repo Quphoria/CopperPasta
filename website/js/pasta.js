@@ -10,6 +10,7 @@ var refreshTimer = undefined;
 
 var uuid = "";
 var scrapbook_id = "";
+var last_scrapbook = undefined;
 
 $(function() {
     $("#content").bind("paste", handlePaste);
@@ -21,6 +22,11 @@ $(function() {
     $("#welcomeModal").modal("show");
     $("#joinForm").submit(joinFormSubmit);
     $("#newScrapbook").click(() => { openScrapbook(); });
+    $("#lastScrapbook").click(() => {
+        if (last_scrapbook) {
+            openScrapbook(last_scrapbook);
+        }
+    });
     $("#copyScrapbookName").click(() => {
         if (scrapbook_id) {
             navigator.clipboard.writeText(scrapbook_id);
@@ -320,6 +326,7 @@ function enableWelcomeForm() {
     $("#newScrapbook").prop("disabled", false);
     $("#openScrapbook").prop("disabled", false);
     $("#scrapbookNameInput").focus();
+    loadLastScrapbookCookie();
 }
 
 function joinFormSubmit(event) {
@@ -327,6 +334,14 @@ function joinFormSubmit(event) {
     var code = $(event.target).children("[name='scrapbook']").val();
 
     openScrapbook(code);
+}
+
+function loadLastScrapbookCookie() {
+    last_scrapbook = getCookie("last_scrapbook");
+    if (last_scrapbook) {
+        $("#lastScrapbook").prop("disabled", false);
+        $("#lastScrapbook").show();
+    }
 }
 
 function openScrapbook(code="") {
@@ -349,6 +364,7 @@ function openScrapbook(code="") {
             if (data && data.scrapbook) {
                 scrapbook_id = data.scrapbook;
                 $("#scrapbookName").text(scrapbook_id);
+                setCookie("last_scrapbook", data.scrapbook, 1); // Only last 1 day
                 $("#welcomeModal").modal("hide");
                 refreshPosts();
                 refreshTimer = setInterval(refreshPosts, refreshInterval);
@@ -410,6 +426,9 @@ function refreshPosts(deletionForce=false) {
                             id: last_post_id + 1
                         });
                         stopRefresh();
+                        if (getCookie("last_scrapbook") == scrapbook_id) {
+                            eraseCookie("last_scrapbook"); // Remove cookie since it has been deleted
+                        }
                         scrapbook_id = ""; // Prevent further pastes
                         $("#deleteScrapbook").prop("disabled", true);
                     } else {
@@ -514,4 +533,20 @@ function showNotification(notification, error=false) {
 
 function stopRefresh() {
     clearInterval(refreshTimer);
+}
+
+function setCookie(key, value, expiry) {
+    var expires = new Date();
+    expires.setTime(expires.getTime() + (expiry * 24 * 60 * 60 * 1000));
+    document.cookie = key + '=' + value + ';expires=' + expires.toUTCString();
+}
+
+function getCookie(key) {
+    var keyValue = document.cookie.match('(^|;) ?' + key + '=([^;]*)(;|$)');
+    return keyValue ? keyValue[2] : undefined;
+}
+
+function eraseCookie(key) {
+    var keyValue = getCookie(key);
+    setCookie(key, keyValue, '-1');
 }
