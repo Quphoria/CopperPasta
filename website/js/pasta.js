@@ -382,7 +382,6 @@ function refreshPosts(deletionForce=false) {
         xhrFields: {
             withCredentials: true
         },
-        complete: () => { refreshing_pastes = false; }, // after success or error
         success: (data) => {
             if (data) {
                 try {
@@ -425,10 +424,9 @@ function refreshPosts(deletionForce=false) {
                     throw e;
                 }
             }
-        }
-    }).fail(() => {
-        showErrorModal("Error", "Failed to refresh pastes");
-        refreshing_pastes = false;
+        }, error: () => {
+            showErrorModal("Error", "Failed to refresh pastes");
+        }, complete: () => { refreshing_pastes = false; }, // after success or error
     });
 }
 
