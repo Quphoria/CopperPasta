@@ -93,7 +93,42 @@ function handlePaste(event) {
         return;
     }
     const file = event.originalEvent.clipboardData.files[0];
-    var item = event.originalEvent.clipboardData.items[0]
+    handleFile(file);
+}
+
+function handleDrop(event) {
+    // Prevent default behavior (Prevent file from being opened)
+    event.preventDefault();
+    if (!(uuid && scrapbook_id)) {
+        // Require uuid and scrapbook id but still prevent default
+        return;
+    }
+
+    const dataTransfer = event.originalEvent.dataTransfer;
+
+    if (dataTransfer.files.length == 0) {
+        showErrorModal("Error", "No files dropped");
+        return;
+    } else if (dataTransfer.files.length > 1) {
+        showErrorModal("Error", "You can only drop 1 file at a time");
+        return;
+    }
+    
+    const file = dataTransfer.files[0];
+    handleFile(file);
+}
+
+function humanFileSize(size) {
+    var i = size == 0 ? 0 : Math.floor( Math.log(size) / Math.log(1024) );
+    return ( size / Math.pow(1024, i) ).toFixed(2) * 1 + ' ' + ['B', 'KB', 'MB', 'GB', 'TB'][i];
+}
+
+function handleFile(file) {
+    if (file.size > MAX_FILE_SIZE) {
+        showErrorModal("Error", MAX_FILE_SIZE_MESSAGE);
+        return;
+    }
+
     switch (file.type) {
         case "image/png":
         case "image/jpeg":
@@ -106,15 +141,25 @@ function handlePaste(event) {
             reader.readAsDataURL(file);
             break;
         case "text/plain":
+        // Handle text file upload as file not text
+            // reader = new FileReader();
+            // reader.addEventListener("load", function () {
+            //     // convert text file to text string
+            //     handleTextPaste(reader.result);
+            // }, false);
+            // reader.readAsText(file);
+            // break;
+        default:
             reader = new FileReader();
             reader.addEventListener("load", function () {
-                // convert text file to text string
-                handleTextPaste(reader.result);
+                // convert image file to base64 string
+                post_data = {
+                    type: "file",
+                    data: btoa(file.name) + "|" + humanFileSize(file.size) + "|" + reader.result
+                };
+                showPreviewModal("Preview", "Post File?", "file", file);
             }, false);
-            reader.readAsText(file);
-            break;
-        default:
-            showErrorModal("Error", "Unknown file type: " + file.type);
+            reader.readAsDataURL(file);
             return;
     }
 }
@@ -138,56 +183,6 @@ function handleImagePaste(image) {
         data: image
     };
     showPreviewModal("Preview", "Post Image?", "image", image);
-}
-
-function humanFileSize(size) {
-    var i = size == 0 ? 0 : Math.floor( Math.log(size) / Math.log(1024) );
-    return ( size / Math.pow(1024, i) ).toFixed(2) * 1 + ' ' + ['B', 'KB', 'MB', 'GB', 'TB'][i];
-}
-
-function handleDrop(event) {
-    // Prevent default behavior (Prevent file from being opened)
-    event.preventDefault();
-    if (!(uuid && scrapbook_id)) {
-        // Require uuid and scrapbook id but still prevent default
-        return;
-    }
-
-    const dataTransfer = event.originalEvent.dataTransfer;
-
-    if (dataTransfer.files.length == 0) {
-        showErrorModal("Error", "No files dropped");
-        return;
-    } else if (dataTransfer.files.length > 1) {
-        showErrorModal("Error", "You can only drop 1 file at a time");
-        return;
-    }
-    
-    const file = dataTransfer.files[0];
-
-    if (file.size > MAX_FILE_SIZE) {
-        showErrorModal("Error", MAX_FILE_SIZE_MESSAGE);
-        return;
-    }
-
-    console.log(file);
-
-    console.log(file.type);
-
-    if (file.name.start)
-
-    console.log(file.name); 
-
-    reader = new FileReader();
-    reader.addEventListener("load", function () {
-        // convert image file to base64 string
-        post_data = {
-            type: "file",
-            data: btoa(file.name) + "|" + humanFileSize(file.size) + "|" + reader.result
-        };
-        showPreviewModal("Preview", "Post File?", "file", file);
-    }, false);
-    reader.readAsDataURL(file);
 }
 
 function showPreviewModal(title, body, type, data) {
