@@ -541,7 +541,7 @@ function refreshPosts(deletionForce=false) {
                     }
                     if (createdPosts) {
                         $("#posts-scroll-wrapper").animate({scrollTop: 0}, 1000);
-                        if (createdPosts >= 5) { // Load more posts since server only sends 5 at a time
+                        if (createdPosts >= 10) { // Load more posts since server only sends 10 at a time
                             refreshing_pastes = false;
                             refreshPosts();
                         }
