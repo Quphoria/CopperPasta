@@ -52,8 +52,9 @@ def check_auth_headers(request):
         (auth and auth == app_password)
 
 def validate_uuid(uuid):
-    max_len = 16 * 4 + 3 + 1 # 1 longer than maximum possible uuid
-    return uuid and len(uuid) <= max_len and re.match(r"^[a-z\-]+$", uuid)
+    # min length is 4 * 4 + 3 - 1 = 18   1 less than minimim possible for safety
+    # max length is 16 * 4 + 3 + 1 = 68  1 longer than maximum possible for safety
+    return uuid and re.match(r"^[a-z\-]{18,68}$", uuid)
     
 def gen_resp(status, data):
     response = web_api.response_class(
@@ -163,7 +164,7 @@ def api_uuid():
     elif request.method == "GET" and check_auth_headers(request):
         uuid = request.cookies.get("uuid")
         # Min length 19 as 4*4 + 3 = 19
-        if not (uuid and re.match(r"^[a-z\-]{19,}$", uuid)):
+        if not validate_uuid(uuid):
             uuid = gen_uuid()
         resp = gen_resp(200, {"uuid": uuid})
         resp.set_cookie("uuid", uuid, expires=getCookieExpiration(30), secure=secure_cookies, path=cookie_path)
