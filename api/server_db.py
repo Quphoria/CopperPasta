@@ -71,7 +71,6 @@ def create_scrapbook(name):
         con.execute("""INSERT INTO Scrapbooks (name, time) SELECT * FROM (SELECT ?, ?) AS tmp
             WHERE NOT EXISTS (SELECT name FROM Scrapbooks WHERE name = ?) LIMIT 1;""", (name, t, name))
     con.close()
-    clean_db()
 
 def check_scrapbook_exists(name):
     con = connect()
@@ -80,7 +79,6 @@ def check_scrapbook_exists(name):
         d = con.execute("SELECT ScrapbookID FROM Scrapbooks WHERE name = ?;", (name,))
         exists = len(d.fetchall()) > 0
     con.close()
-    clean_db()
     return exists
 
 def delete_scrapbook(name):
@@ -90,7 +88,6 @@ def delete_scrapbook(name):
         # Delete orphaned pastes
         con.execute("DELETE FROM Pastes WHERE ScrapbookID NOT IN (SELECT ScrapbookID FROM Scrapbooks);")
     con.close()
-    clean_db()
 
 def create_post(scrapbook_name, post_type, data, client_uuid):
     con = connect()
@@ -104,7 +101,6 @@ def create_post(scrapbook_name, post_type, data, client_uuid):
         if len(data) > 0:
             new_row = data[0]
     con.close()
-    clean_db()
     if new_row and len(new_row) > 0:
         return new_row
 
@@ -117,7 +113,6 @@ def get_pastes(scrapbook_name, start_id=0):
         for paste in data:
             pastes.append(paste)
     con.close()
-    clean_db()
     return pastes
 
 
