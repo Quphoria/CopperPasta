@@ -162,11 +162,9 @@ def api_uuid():
         return _build_cors_preflight_response()
     elif request.method == "GET" and check_auth_headers(request):
         uuid = request.cookies.get("uuid")
-        if uuid:
-            if uuid:
-                pass
-            return gen_resp(200, {"uuid": uuid})
-        uuid = gen_uuid()
+        # Min length 19 as 4*4 + 3 = 19
+        if not (uuid and re.match(r"^[a-z\-]{19,}$", uuid)):
+            uuid = gen_uuid()
         resp = gen_resp(200, {"uuid": uuid})
         resp.set_cookie("uuid", uuid, expires=getCookieExpiration(30), secure=secure_cookies, path=cookie_path)
         return resp
