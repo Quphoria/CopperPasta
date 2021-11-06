@@ -73,7 +73,7 @@ code {
 
 .mobile-only { display: none; }
 
-@media (pointer: coarse) and (hover: none) {
+@media (pointer: coarse) {
     /* Show input textarea on mobile devices where paste requires an input */
     .mobile-only { display: block!important; }
 }
