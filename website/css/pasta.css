@@ -71,9 +71,11 @@ code {
     height: 1em;
 }
 
-@media (hover: hover) {
+.mobile-only { display: none; }
+
+@media not all and (hover: none) {
     /* Show input textarea on mobile devices where paste requires an input */
-    .mobile-only { display: none!important; }
+    .mobile-only { display: block!important; }
 }
 
 /* Scrollbar stuff */
