@@ -243,6 +243,9 @@ function createPost(data, info) {
         case "file":
             createFilePost(data, info);
             break;
+        case "Warn":
+            createErrorPost(data, info, warn=true);
+            break;
         case "Error":
             createErrorPost(data, info);
             break;
@@ -321,14 +324,17 @@ function createFilePost(file, info) {
     newPost.prependTo("#posts-area");
 }
 
-function createErrorPost(text, info) {
+function createErrorPost(text, info, warn=false) {
     var newPost = $($("#textPost").html());
     newPost.attr("data-id", info.id.toString());
     var text_elem = newPost.children('.card-body');
     text_elem.text(text);
     text_elem.removeClass("text-light");
     text_elem.addClass("text-danger");
-    var postHeader = $('<h5 class="text-warning mb-0">Warning</h5>');
+    var postHeader = $('<h5 class="text-danger mb-0">Error</h5>');
+    if (warn) {
+        postHeader = $('<h5 class="text-warning mb-0">Warning</h5>');
+    }
     newPost.children('.card-header').append(postHeader);
     newPost.prependTo("#posts-area");
 }
@@ -527,7 +533,7 @@ function refreshPosts(deletionForce=false) {
                         }
                     } else if (data.error == "deleted") {
                         createPost("The Scrapbook has been deleted, if you refresh the page all the content below will be permanently deleted", {
-                            type: "Error",
+                            type: "Warn",
                             id: last_post_id + 1
                         });
                         stopRefresh();
