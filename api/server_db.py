@@ -65,14 +65,14 @@ def init_db():
     with closing(con.cursor()) as cur:
         cur.execute("""
             CREATE TABLE IF NOT EXISTS Scrapbooks (
-                ScrapbookID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+                ScrapbookID INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
                 name TEXT NOT NULL,
                 time INTEGER NOT NULL DEFAULT 0
             );
             """)
         cur.execute("""
             CREATE TABLE IF NOT EXISTS Pastes (
-                PasteID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+                PasteID INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
                 ScrapbookID INTEGER NOT NULL,
                 type TEXT NOT NULL,
                 data TEXT NOT NULL,
