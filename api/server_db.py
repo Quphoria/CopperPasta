@@ -164,7 +164,7 @@ def get_pastes(scrapbook_name, start_id=0):
         cur.execute("""SELECT PasteID, type, data, client_uuid, time FROM Pastes
             WHERE PasteID > %s AND ScrapbookID = (SELECT ScrapbookID FROM Scrapbooks WHERE name = %s) ORDER BY PasteID ASC LIMIT 10;""", (start_id, scrapbook_name))
         for paste in cur.fetchall():
-            new_paste = paste.copy()
+            new_paste = list(paste)
             new_paste[2] = zlib.decompress(paste[2]).decode()
             pastes.append(paste)
     con.close()
