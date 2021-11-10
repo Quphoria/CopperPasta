@@ -99,8 +99,8 @@ def clean_db(threshold_time=get_default_threshold()):
     con = connect()
     with closing(con.cursor()) as cur:
         cur.execute("DELETE FROM Pastes WHERE ScrapbookID NOT IN (SELECT ScrapbookID FROM Scrapbooks);")
-        cur.execute("DELETE FROM Pastes WHERE time < ?;", (threshold_time,))
-        cur.execute("DELETE FROM Scrapbooks WHERE time < ? AND ScrapbookID NOT IN (SELECT ScrapbookID FROM Pastes);", (threshold_time,))
+        cur.execute("DELETE FROM Pastes WHERE time < %s", (threshold_time,))
+        cur.execute("DELETE FROM Scrapbooks WHERE time < %s AND ScrapbookID NOT IN (SELECT ScrapbookID FROM Pastes);", (threshold_time,))
     con.close()
 
 def delete_empty_scrapbooks():
@@ -113,15 +113,15 @@ def create_scrapbook(name):
     con = connect()
     with closing(con.cursor()) as cur:
         t = get_time()
-        cur.execute("""INSERT INTO Scrapbooks (name, time) SELECT * FROM (SELECT ?, ?) AS tmp
-            WHERE NOT EXISTS (SELECT name FROM Scrapbooks WHERE name = ?) LIMIT 1;""", (name, t, name))
+        cur.execute("""INSERT INTO Scrapbooks (name, time) SELECT * FROM (SELECT %s, %s) AS tmp
+            WHERE NOT EXISTS (SELECT name FROM Scrapbooks WHERE name = %s) LIMIT 1;""", (name, t, name))
     con.close()
 
 def check_scrapbook_exists(name):
     con = connect()
     exists = False
     with closing(con.cursor()) as cur:
-        d = cur.execute("SELECT ScrapbookID FROM Scrapbooks WHERE name = ?;", (name,))
+        d = cur.execute("SELECT ScrapbookID FROM Scrapbooks WHERE name = %s;", (name,))
         exists = len(d.fetchall()) > 0
     con.close()
     return exists
@@ -129,7 +129,7 @@ def check_scrapbook_exists(name):
 def delete_scrapbook(name):
     con = connect()
     with closing(con.cursor()) as cur:
-        cur.execute("DELETE FROM Scrapbooks WHERE name = ?;", (name,))
+        cur.execute("DELETE FROM Scrapbooks WHERE name = %s;", (name,))
         # Delete orphaned pastes
         cur.execute("DELETE FROM Pastes WHERE ScrapbookID NOT IN (SELECT ScrapbookID FROM Scrapbooks);")
     con.close()
@@ -140,7 +140,7 @@ def create_post(scrapbook_name, post_type, data, client_uuid):
     with closing(con.cursor()) as cur:
         t = get_time()
         d = cur.execute("""INSERT INTO Pastes (ScrapbookID, type, data, client_uuid, time)
-            values((SELECT ScrapbookID FROM Scrapbooks WHERE name = ?),?,?,?,?)
+            values((SELECT ScrapbookID FROM Scrapbooks WHERE name = %s),%s,%s,%s,%s)
             RETURNING PasteID, type, data, client_uuid, time;""", (scrapbook_name, post_type, data, client_uuid, t))
         data = d.fetchall()
         if len(data) > 0:
@@ -154,7 +154,7 @@ def get_pastes(scrapbook_name, start_id=0):
     pastes = []
     with closing(con.cursor()) as cur:
         data = cur.execute("""SELECT PasteID, type, data, client_uuid, time FROM Pastes
-            WHERE PasteID > ? AND ScrapbookID = (SELECT ScrapbookID FROM Scrapbooks WHERE name = ?) ORDER BY PasteID ASC LIMIT 10;""", (start_id, scrapbook_name))
+            WHERE PasteID > %s AND ScrapbookID = (SELECT ScrapbookID FROM Scrapbooks WHERE name = %s) ORDER BY PasteID ASC LIMIT 10;""", (start_id, scrapbook_name))
         for paste in data:
             pastes.append(paste)
     con.close()
