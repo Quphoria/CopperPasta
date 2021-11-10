@@ -159,9 +159,9 @@ def get_pastes(scrapbook_name, start_id=0):
     con = connect()
     pastes = []
     with closing(con.cursor()) as cur:
-        data = cur.execute("""SELECT PasteID, type, data, client_uuid, time FROM Pastes
+        cur.execute("""SELECT PasteID, type, data, client_uuid, time FROM Pastes
             WHERE PasteID > %s AND ScrapbookID = (SELECT ScrapbookID FROM Scrapbooks WHERE name = %s) ORDER BY PasteID ASC LIMIT 10;""", (start_id, scrapbook_name))
-        for paste in data:
+        for paste in cur.fetchall():
             pastes.append(paste)
     con.close()
     return pastes
