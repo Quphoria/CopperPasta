@@ -4,3 +4,4 @@ __pycache__/
 
 *.db
 *.secret
+pasta.conf
