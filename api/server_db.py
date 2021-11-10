@@ -85,7 +85,7 @@ def init_db():
                     length(client_uuid) > 0)
             );
         """)
-    con.commit()
+        con.commit()
     con.close()
 
 def delete_table():
@@ -93,6 +93,7 @@ def delete_table():
     with closing(con.cursor()) as cur:
         cur.execute("DROP TABLE IF EXISTS Pastes;")
         cur.execute("DROP TABLE IF EXISTS Scrapbooks;")
+    con.commit()
     con.close()
 
 def clean_db(threshold_time=get_default_threshold()):
@@ -101,12 +102,14 @@ def clean_db(threshold_time=get_default_threshold()):
         cur.execute("DELETE FROM Pastes WHERE ScrapbookID NOT IN (SELECT ScrapbookID FROM Scrapbooks);")
         cur.execute("DELETE FROM Pastes WHERE time < %s", (threshold_time,))
         cur.execute("DELETE FROM Scrapbooks WHERE time < %s AND ScrapbookID NOT IN (SELECT ScrapbookID FROM Pastes);", (threshold_time,))
+        con.commit()
     con.close()
 
 def delete_empty_scrapbooks():
     con = connect()
     with closing(con.cursor()) as cur:
         cur.execute("DELETE FROM Scrapbooks WHERE ScrapbookID NOT IN (SELECT ScrapbookID FROM Pastes);")
+        con.commit()
     con.close()
 
 def create_scrapbook(name):
@@ -115,6 +118,7 @@ def create_scrapbook(name):
         t = get_time()
         cur.execute("""INSERT INTO Scrapbooks (name, time) SELECT * FROM (SELECT %s, %s) AS tmp
             WHERE NOT EXISTS (SELECT name FROM Scrapbooks WHERE name = %s) LIMIT 1;""", (name, t, name))
+        con.commit()
     con.close()
 
 def check_scrapbook_exists(name):
@@ -132,6 +136,7 @@ def delete_scrapbook(name):
         cur.execute("DELETE FROM Scrapbooks WHERE name = %s;", (name,))
         # Delete orphaned pastes
         cur.execute("DELETE FROM Pastes WHERE ScrapbookID NOT IN (SELECT ScrapbookID FROM Scrapbooks);")
+        con.commit()
     con.close()
 
 def create_post(scrapbook_name, post_type, data, client_uuid):
@@ -145,6 +150,7 @@ def create_post(scrapbook_name, post_type, data, client_uuid):
         data = cur.fetchall()
         if len(data) > 0:
             new_row = data[0]
+        con.commit()
     con.close()
     if new_row and len(new_row) > 0:
         return new_row
