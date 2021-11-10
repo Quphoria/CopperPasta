@@ -121,8 +121,8 @@ def check_scrapbook_exists(name):
     con = connect()
     exists = False
     with closing(con.cursor()) as cur:
-        d = cur.execute("SELECT ScrapbookID FROM Scrapbooks WHERE name = %s;", (name,))
-        exists = len(d.fetchall()) > 0
+        cur.execute("SELECT ScrapbookID FROM Scrapbooks WHERE name = %s;", (name,))
+        exists = len(cur.fetchall()) > 0
     con.close()
     return exists
 
@@ -139,10 +139,10 @@ def create_post(scrapbook_name, post_type, data, client_uuid):
     new_row = None
     with closing(con.cursor()) as cur:
         t = get_time()
-        d = cur.execute("""INSERT INTO Pastes (ScrapbookID, type, data, client_uuid, time)
+        cur.execute("""INSERT INTO Pastes (ScrapbookID, type, data, client_uuid, time)
             values((SELECT ScrapbookID FROM Scrapbooks WHERE name = %s),%s,%s,%s,%s)
             RETURNING PasteID, type, data, client_uuid, time;""", (scrapbook_name, post_type, data, client_uuid, t))
-        data = d.fetchall()
+        data = cur.fetchall()
         if len(data) > 0:
             new_row = data[0]
     con.close()
