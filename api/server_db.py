@@ -19,7 +19,7 @@ def load_config():
             user = config["user"]
             password = config["password"]
     except Exception as ex:
-        with open(config_file, "w+") as f:
+        with open(config_file, "w") as f:
             json.dump({
                 "host": host,
                 "user": user,
