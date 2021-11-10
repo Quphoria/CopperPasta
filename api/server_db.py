@@ -165,8 +165,13 @@ def get_pastes(scrapbook_name, start_id=0):
             WHERE PasteID > %s AND ScrapbookID = (SELECT ScrapbookID FROM Scrapbooks WHERE name = %s) ORDER BY PasteID ASC LIMIT 10;""", (start_id, scrapbook_name))
         for paste in cur.fetchall():
             new_paste = list(paste)
-            new_paste[2] = zlib.decompress(paste[2]).decode()
-            pastes.append(paste)
+            try:
+                new_paste[2] = zlib.decompress(paste[2]).decode()
+                pastes.append(new_paste)
+            except:
+                new_paste[1] = "error"
+                new_paste[2] = "Error decompressing paste"
+                pastes.append(new_paste)
     con.close()
     return pastes
 
