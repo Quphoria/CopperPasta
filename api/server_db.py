@@ -67,7 +67,7 @@ def init_db():
             CREATE TABLE IF NOT EXISTS Scrapbooks (
                 ScrapbookID INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
                 name TEXT NOT NULL,
-                time INTEGER NOT NULL DEFAULT 0
+                time BIGINT NOT NULL DEFAULT 0
             );
             """)
         cur.execute("""
@@ -77,7 +77,7 @@ def init_db():
                 type TEXT NOT NULL,
                 data TEXT NOT NULL,
                 client_uuid TEXT NOT NULL,
-                time INTEGER NOT NULL DEFAULT 0,
+                time BIGINT NOT NULL DEFAULT 0,
                 FOREIGN KEY (ScrapbookID) REFERENCES Scrapbooks(ScrapbookID),
 
                 CHECK (length(type) > 0 AND
