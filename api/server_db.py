@@ -76,7 +76,7 @@ def init_db():
                 ScrapbookID INTEGER NOT NULL,
                 type TEXT NOT NULL,
                 data TEXT NOT NULL,
-                client_uuid TEXT NOT NULL DEFAULT '',
+                client_uuid TEXT NOT NULL,
                 time INTEGER NOT NULL DEFAULT 0,
                 FOREIGN KEY (ScrapbookID) REFERENCES Scrapbooks(ScrapbookID),
 
