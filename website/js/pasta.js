@@ -217,13 +217,14 @@ function previewModalKeypress (event) {
     }
 }
 
-function showErrorModal(title, body, deleteModal = false) {
+function showErrorModal(title, body, deleteModal=false, error_type="") {
     hideModals();
     $('#errorModalTitle').html(title);
     $('#errorModalBody').text(body); // No XSS plz
     // Select which buttons to show
     $('.error-modal-btn').toggle(!deleteModal);
     $('.delete-modal-btn').toggle(deleteModal);
+    $('#errorModal').data("error_type", error_type);
     $('#errorModal').modal('show');
 }
 
@@ -495,7 +496,9 @@ var refreshing_pastes = false;
 function refreshPosts(deletionForce=false) {
     if (refreshing_pastes) { return; }
     if ($('#errorModal').is(':visible') && !deletionForce) {
-        return; // Don't refresh while error modal open
+        if ($('#errorModal').data("error_type") == "pastes-reload-fail") {
+            return; // Don't refresh while error modal open
+        }
     }
     data = {
         start_id: last_post_id,
@@ -543,7 +546,7 @@ function refreshPosts(deletionForce=false) {
                         scrapbook_id = ""; // Prevent further pastes
                         $("#deleteScrapbook").prop("disabled", true);
                     } else {
-                        showErrorModal("Error", "Failed to refresh pastes");
+                        showErrorModal("Error", "Failed to refresh pastes", error_type="pastes-reload-fail");
                     }
                     if (createdPosts) {
                         $("#posts-scroll-wrapper").animate({scrollTop: 0}, 1000);
@@ -553,13 +556,21 @@ function refreshPosts(deletionForce=false) {
                         }
                     }
                 } catch (e) {
-                    showErrorModal("Error", "Failed to refresh pastes");
+                    showErrorModal("Error", "Failed to refresh pastes", error_type="pastes-reload-fail");
                     throw e;
                 }
             }
         }, error: () => {
-            showErrorModal("Error", "Failed to refresh pastes");
-        }, complete: () => { refreshing_pastes = false; }, // after success or error
+            showErrorModal("Error", "Failed to refresh pastes", error_type="pastes-reload-fail");
+        }, complete: () => {
+            refreshing_pastes = false;
+            if ($('#errorModal').is(':visible')) {
+                if ($('#errorModal').data("error_type") == "pastes-reload-fail") {
+                    $('#errorModal').modal("hide");
+                    // Hide error modal as pastes were successfully loaded
+                }
+            }
+        }, // after success or error
     });
 }
 
