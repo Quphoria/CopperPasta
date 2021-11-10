@@ -145,7 +145,7 @@ def create_post(scrapbook_name, post_type, data, client_uuid):
     with closing(con.cursor()) as cur:
         t = get_time()
         cur.execute("""INSERT INTO Pastes (ScrapbookID, type, data, client_uuid, time)
-            values((SELECT ScrapbookID FROM Scrapbooks WHERE name = %s),%s,%s,%s,%s);""",
+            values((SELECT ScrapbookID FROM Scrapbooks WHERE name = %s),%s,%s,%s,%s); SELECT LAST_INSERT_ID();""",
             (scrapbook_name, post_type, data, client_uuid, t))
         data = cur.fetchall()
         if len(data) > 0:
