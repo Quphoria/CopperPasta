@@ -11,7 +11,7 @@ cors_origin = "https://pasta.quphoria.co.uk"
 
 MAX_CONTENT_LENGTH = 32 * 1024 * 1024 # 32MB max content length
 
-server_db.database_file = os.path.join(sys.path[0], "pasta.db")
+server_db.config_file = os.path.join(sys.path[0], "pasta.conf")
 
 words = []
 # Load wordlist from https://raw.githubusercontent.com/sapbmw/The-Oxford-3000/master/The_Oxford_3000.txt
@@ -193,6 +193,7 @@ def gen_uuid(length=4):
     return uuid
 
 def init():
+    server_db.load_config()
     server_db.init_db()
 
 def main():

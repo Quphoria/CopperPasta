@@ -1,10 +1,44 @@
-import sqlite3 as sl
+import mysql.connector, json
 import time
 
-database_file = 'pasta.db'
+config_file = 'pasta.conf'
 
 def connect(): 
     return sl.connect(database_file)
+
+host = "MYSQL_HOST"
+user = "MYSQL_USERNAME"
+password = "MYSQL_PASSWORD"
+
+def load_config():
+    global host, user, password
+    try:
+        with open(config_file) as f:
+            config = json.load(f)
+            host = config["host"]
+            user = config["user"]
+            password = config["password"]
+    except Exception as ex:
+        with open(config_file, "w") as f:
+            json.dump({
+                "host": host,
+                "user": user,
+                "password": password
+            }, f)
+        print("Error with mysql config")
+        raise ex
+
+def connect():
+    try:
+        con = mysql.connector.connect(
+            host=host,
+            user=user,
+            password=password
+        )
+    except Exception as ex:
+        print("Error connecting to database", ex)
+        raise ex
+    return con
 
 def get_time():
     return int(time.time()*1000)
@@ -15,7 +49,6 @@ def get_default_threshold():
     return get_time() - (threshold_dt*1000)
 
 def init_db():
-    print("Database located at:", database_file)
     con = connect()
     with con:
         con.execute("""
@@ -24,7 +57,7 @@ def init_db():
                 name TEXT NOT NULL,
                 time INTEGER NOT NULL DEFAULT 0
             );
-            """);
+            """)
         con.execute("""
             CREATE TABLE IF NOT EXISTS Pastes (
                 PasteID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
@@ -117,6 +150,7 @@ def get_pastes(scrapbook_name, start_id=0):
 
 
 if __name__ == "__main__":
+    load_config()
     init_db()
     delete_empty_scrapbooks()
     # delete_table()
