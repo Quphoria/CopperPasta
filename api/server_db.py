@@ -1,4 +1,4 @@
-import mysql.connector, json
+import mysql.connector, json, zlib
 import time
 from contextlib import contextmanager
 
@@ -140,13 +140,14 @@ def delete_scrapbook(name):
     con.close()
 
 def create_post(scrapbook_name, post_type, data, client_uuid):
+    compressed_data = zlib.compress(data.encode())
     con = connect()
     new_row = None
     with closing(con.cursor()) as cur:
         t = get_time()
         cur.execute("""INSERT INTO Pastes (ScrapbookID, type, data, client_uuid, time)
             values((SELECT ScrapbookID FROM Scrapbooks WHERE name = %s),%s,%s,%s,%s);""",
-            (scrapbook_name, post_type, data, client_uuid, t))
+            (scrapbook_name, post_type, compressed_data, client_uuid, t))
         cur.execute("SELECT LAST_INSERT_ID();")
         data = cur.fetchall()
         if len(data) > 0:
@@ -163,6 +164,8 @@ def get_pastes(scrapbook_name, start_id=0):
         cur.execute("""SELECT PasteID, type, data, client_uuid, time FROM Pastes
             WHERE PasteID > %s AND ScrapbookID = (SELECT ScrapbookID FROM Scrapbooks WHERE name = %s) ORDER BY PasteID ASC LIMIT 10;""", (start_id, scrapbook_name))
         for paste in cur.fetchall():
+            new_paste = paste.copy()
+            new_paste[2] = zlib.decompress(paste[2]).decode()
             pastes.append(paste)
     con.close()
     return pastes
