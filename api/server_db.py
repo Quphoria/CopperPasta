@@ -1,5 +1,6 @@
 import mysql.connector, json
 import time
+from contextlib import contextmanager
 
 config_file = 'pasta.conf'
 
@@ -10,6 +11,13 @@ host = "MYSQL_HOST"
 user = "MYSQL_USERNAME"
 password = "MYSQL_PASSWORD"
 database = "pasta"
+
+@contextmanager
+def closing(thing):
+    try:
+        yield thing
+    finally:
+        thing.close()
 
 def load_config():
     global host, user, password, database
@@ -54,15 +62,15 @@ def get_default_threshold():
 
 def init_db():
     con = connect()
-    with con:
-        con.execute("""
+    with closing(con.cursor()) as cur:
+        cur.execute("""
             CREATE TABLE IF NOT EXISTS Scrapbooks (
                 ScrapbookID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
                 name TEXT NOT NULL,
                 time INTEGER NOT NULL DEFAULT 0
             );
             """)
-        con.execute("""
+        cur.execute("""
             CREATE TABLE IF NOT EXISTS Pastes (
                 PasteID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
                 ScrapbookID INTEGER NOT NULL,
@@ -82,56 +90,56 @@ def init_db():
 
 def delete_table():
     con = connect()
-    with con:
-        con.execute("DROP TABLE IF EXISTS Pastes;")
-        con.execute("DROP TABLE IF EXISTS Scrapbooks;")
+    with closing(con.cursor()) as cur:
+        cur.execute("DROP TABLE IF EXISTS Pastes;")
+        cur.execute("DROP TABLE IF EXISTS Scrapbooks;")
     con.close()
 
 def clean_db(threshold_time=get_default_threshold()):
     con = connect()
-    with con:
-        con.execute("DELETE FROM Pastes WHERE ScrapbookID NOT IN (SELECT ScrapbookID FROM Scrapbooks);")
-        con.execute("DELETE FROM Pastes WHERE time < ?;", (threshold_time,))
-        con.execute("DELETE FROM Scrapbooks WHERE time < ? AND ScrapbookID NOT IN (SELECT ScrapbookID FROM Pastes);", (threshold_time,))
+    with closing(con.cursor()) as cur:
+        cur.execute("DELETE FROM Pastes WHERE ScrapbookID NOT IN (SELECT ScrapbookID FROM Scrapbooks);")
+        cur.execute("DELETE FROM Pastes WHERE time < ?;", (threshold_time,))
+        cur.execute("DELETE FROM Scrapbooks WHERE time < ? AND ScrapbookID NOT IN (SELECT ScrapbookID FROM Pastes);", (threshold_time,))
     con.close()
 
 def delete_empty_scrapbooks():
     con = connect()
-    with con:
-        con.execute("DELETE FROM Scrapbooks WHERE ScrapbookID NOT IN (SELECT ScrapbookID FROM Pastes);")
+    with closing(con.cursor()) as cur:
+        cur.execute("DELETE FROM Scrapbooks WHERE ScrapbookID NOT IN (SELECT ScrapbookID FROM Pastes);")
     con.close()
 
 def create_scrapbook(name):
     con = connect()
-    with con:
+    with closing(con.cursor()) as cur:
         t = get_time()
-        con.execute("""INSERT INTO Scrapbooks (name, time) SELECT * FROM (SELECT ?, ?) AS tmp
+        cur.execute("""INSERT INTO Scrapbooks (name, time) SELECT * FROM (SELECT ?, ?) AS tmp
             WHERE NOT EXISTS (SELECT name FROM Scrapbooks WHERE name = ?) LIMIT 1;""", (name, t, name))
     con.close()
 
 def check_scrapbook_exists(name):
     con = connect()
     exists = False
-    with con:
-        d = con.execute("SELECT ScrapbookID FROM Scrapbooks WHERE name = ?;", (name,))
+    with closing(con.cursor()) as cur:
+        d = cur.execute("SELECT ScrapbookID FROM Scrapbooks WHERE name = ?;", (name,))
         exists = len(d.fetchall()) > 0
     con.close()
     return exists
 
 def delete_scrapbook(name):
     con = connect()
-    with con:
-        con.execute("DELETE FROM Scrapbooks WHERE name = ?;", (name,))
+    with closing(con.cursor()) as cur:
+        cur.execute("DELETE FROM Scrapbooks WHERE name = ?;", (name,))
         # Delete orphaned pastes
-        con.execute("DELETE FROM Pastes WHERE ScrapbookID NOT IN (SELECT ScrapbookID FROM Scrapbooks);")
+        cur.execute("DELETE FROM Pastes WHERE ScrapbookID NOT IN (SELECT ScrapbookID FROM Scrapbooks);")
     con.close()
 
 def create_post(scrapbook_name, post_type, data, client_uuid):
     con = connect()
     new_row = None
-    with con:
+    with closing(con.cursor()) as cur:
         t = get_time()
-        d = con.execute("""INSERT INTO Pastes (ScrapbookID, type, data, client_uuid, time)
+        d = cur.execute("""INSERT INTO Pastes (ScrapbookID, type, data, client_uuid, time)
             values((SELECT ScrapbookID FROM Scrapbooks WHERE name = ?),?,?,?,?)
             RETURNING PasteID, type, data, client_uuid, time;""", (scrapbook_name, post_type, data, client_uuid, t))
         data = d.fetchall()
@@ -144,8 +152,8 @@ def create_post(scrapbook_name, post_type, data, client_uuid):
 def get_pastes(scrapbook_name, start_id=0):
     con = connect()
     pastes = []
-    with con:
-        data = con.execute("""SELECT PasteID, type, data, client_uuid, time FROM Pastes
+    with closing(con.cursor()) as cur:
+        data = cur.execute("""SELECT PasteID, type, data, client_uuid, time FROM Pastes
             WHERE PasteID > ? AND ScrapbookID = (SELECT ScrapbookID FROM Scrapbooks WHERE name = ?) ORDER BY PasteID ASC LIMIT 10;""", (start_id, scrapbook_name))
         for paste in data:
             pastes.append(paste)
