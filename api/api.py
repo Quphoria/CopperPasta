@@ -5,6 +5,7 @@ from json.decoder import JSONDecodeError
 import server_db
 
 debug = False
+debug_port = 5000
 secure_cookies = True
 cookie_path = "/api/"
 cors_origin = "https://pasta.quphoria.co.uk"
@@ -197,7 +198,7 @@ def init():
     server_db.init_db()
 
 def main():
-    web_api.run(host="0.0.0.0", port="8080", debug=debug, use_reloader=False)
+    web_api.run(host="0.0.0.0", port=debug_port, debug=debug, use_reloader=False)
 
 init() # init even if not main
 if __name__ == "__main__":

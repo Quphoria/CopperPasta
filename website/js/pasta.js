@@ -1,7 +1,7 @@
 
 const debug = false;
 const api_url = "/api";
-// const api_url = "http://localhost:8080";
+// const api_url = "http://localhost:5000";
 const refreshInterval = 10000; // 10 second refresh interval
 const MAX_FILE_SIZE = 16 * 1024 * 1024; // 8MB file limit
 const MAX_FILE_SIZE_MESSAGE = "File larger than 16MB";
