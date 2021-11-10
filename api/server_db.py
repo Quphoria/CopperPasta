@@ -9,21 +9,24 @@ def connect():
 host = "MYSQL_HOST"
 user = "MYSQL_USERNAME"
 password = "MYSQL_PASSWORD"
+database = "pasta"
 
 def load_config():
-    global host, user, password
+    global host, user, password, database
     try:
         with open(config_file) as f:
             config = json.load(f)
             host = config["host"]
             user = config["user"]
             password = config["password"]
+            database = config["database"]
     except Exception as ex:
         with open(config_file, "w") as f:
             json.dump({
                 "host": host,
                 "user": user,
-                "password": password
+                "password": password,
+                "database": database
             }, f, indent=4)
         print("Error with mysql config")
         raise ex
@@ -33,7 +36,8 @@ def connect():
         con = mysql.connector.connect(
             host=host,
             user=user,
-            password=password
+            password=password,
+            database=database
         )
     except Exception as ex:
         print("Error connecting to database", ex)
