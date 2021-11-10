@@ -24,7 +24,7 @@ def load_config():
                 "host": host,
                 "user": user,
                 "password": password
-            }, f)
+            }, f, indent=4)
         print("Error with mysql config")
         raise ex
 
