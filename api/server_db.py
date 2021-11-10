@@ -75,7 +75,7 @@ def init_db():
                 PasteID INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
                 ScrapbookID INTEGER NOT NULL,
                 type TEXT NOT NULL,
-                data LONGTEXT NOT NULL,
+                data LONGBLOB NOT NULL,
                 client_uuid TEXT NOT NULL,
                 time BIGINT NOT NULL DEFAULT 0,
                 FOREIGN KEY (ScrapbookID) REFERENCES Scrapbooks(ScrapbookID),
