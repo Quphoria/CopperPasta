@@ -169,7 +169,7 @@ def get_pastes(scrapbook_name, start_id=0):
                 new_paste[2] = zlib.decompress(paste[2]).decode()
                 pastes.append(new_paste)
             except:
-                new_paste[1] = "error"
+                new_paste[1] = "Error"
                 new_paste[2] = "Error decompressing paste"
                 pastes.append(new_paste)
     con.close()
