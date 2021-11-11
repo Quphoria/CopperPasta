@@ -516,60 +516,60 @@ function refreshPosts(deletionForce=false) {
             withCredentials: true
         },
         success: (data) => {
-            if (data) {
-                try {
-                    var createdPosts = 0;
-                    if (Array.isArray(data)) {
-                        for (paste of data) {
-                            if (!pasteExists(paste[0])) {
-                                createPost(paste[2], {
-                                    type: paste[1],
-                                    id: paste[0],
-                                    client: paste[3],
-                                    timestamp: paste[4]
-                                });
-                                createdPosts++;
-                                if (paste[0] > last_post_id) {
-                                    last_post_id = paste[0];
-                                }
+            try {
+                assert(data);
+                var createdPosts = 0;
+                if (Array.isArray(data)) {
+                    for (paste of data) {
+                        if (!pasteExists(paste[0])) {
+                            createPost(paste[2], {
+                                type: paste[1],
+                                id: paste[0],
+                                client: paste[3],
+                                timestamp: paste[4]
+                            });
+                            createdPosts++;
+                            if (paste[0] > last_post_id) {
+                                last_post_id = paste[0];
                             }
                         }
-                    } else if (data.error == "deleted") {
-                        createPost("The Scrapbook has been deleted, if you refresh the page all the content below will be permanently deleted", {
-                            type: "Warn",
-                            id: last_post_id + 1
-                        });
-                        stopRefresh();
-                        if (getCookie("last_scrapbook") == scrapbook_id) {
-                            eraseCookie("last_scrapbook"); // Remove cookie since it has been deleted
-                        }
-                        scrapbook_id = ""; // Prevent further pastes
-                        $("#deleteScrapbook").prop("disabled", true);
-                    } else {
-                        showErrorModal("Error", "Failed to refresh pastes", false, error_type="pastes-reload-fail");
                     }
-                    if (createdPosts) {
-                        $("#posts-scroll-wrapper").animate({scrollTop: 0}, 1000);
-                        if (createdPosts >= 10) { // Load more posts since server only sends 10 at a time
-                            refreshing_pastes = false;
-                            refreshPosts();
-                        }
+                } else if (data.error == "deleted") {
+                    createPost("The Scrapbook has been deleted, if you refresh the page all the content below will be permanently deleted", {
+                        type: "Warn",
+                        id: last_post_id + 1
+                    });
+                    stopRefresh();
+                    if (getCookie("last_scrapbook") == scrapbook_id) {
+                        eraseCookie("last_scrapbook"); // Remove cookie since it has been deleted
                     }
-                } catch (e) {
-                    showErrorModal("Error", "Failed to refresh pastes", false, error_type="pastes-reload-fail");
-                    throw e;
+                    scrapbook_id = ""; // Prevent further pastes
+                    $("#deleteScrapbook").prop("disabled", true);
+                } else {
+                    assert(false);
+                }
+                if (createdPosts) {
+                    $("#posts-scroll-wrapper").animate({scrollTop: 0}, 1000);
+                    if (createdPosts >= 10) { // Load more posts since server only sends 10 at a time
+                        refreshing_pastes = false;
+                        refreshPosts();
+                    }
+                }
+            } catch (e) {
+                showErrorModal("Error", "Failed to refresh pastes", false, error_type="pastes-reload-fail");
+                throw e;
+            }
+            // Successful refresh, close error box
+            if ($('#errorModal').is(':visible')) {
+                if ($('#errorModal').data("error_type") == "pastes-reload-fail") {
+                    // Hide error modal as pastes were successfully loaded
+                    $('#errorModal').modal("hide");
                 }
             }
         }, error: () => {
             showErrorModal("Error", "Failed to refresh pastes", false, error_type="pastes-reload-fail");
         }, complete: () => {
             refreshing_pastes = false;
-            if ($('#errorModal').is(':visible')) {
-                if ($('#errorModal').data("error_type") == "pastes-reload-fail") {
-                    $('#errorModal').modal("hide");
-                    // Hide error modal as pastes were successfully loaded
-                }
-            }
         }, // after success or error
     });
 }
