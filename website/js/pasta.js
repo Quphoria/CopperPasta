@@ -546,7 +546,7 @@ function refreshPosts(deletionForce=false) {
                         scrapbook_id = ""; // Prevent further pastes
                         $("#deleteScrapbook").prop("disabled", true);
                     } else {
-                        showErrorModal("Error", "Failed to refresh pastes", error_type="pastes-reload-fail");
+                        showErrorModal("Error", "Failed to refresh pastes", false, error_type="pastes-reload-fail");
                     }
                     if (createdPosts) {
                         $("#posts-scroll-wrapper").animate({scrollTop: 0}, 1000);
@@ -556,12 +556,12 @@ function refreshPosts(deletionForce=false) {
                         }
                     }
                 } catch (e) {
-                    showErrorModal("Error", "Failed to refresh pastes", error_type="pastes-reload-fail");
+                    showErrorModal("Error", "Failed to refresh pastes", false, error_type="pastes-reload-fail");
                     throw e;
                 }
             }
         }, error: () => {
-            showErrorModal("Error", "Failed to refresh pastes", error_type="pastes-reload-fail");
+            showErrorModal("Error", "Failed to refresh pastes", false, error_type="pastes-reload-fail");
         }, complete: () => {
             refreshing_pastes = false;
             if ($('#errorModal').is(':visible')) {
