@@ -496,7 +496,7 @@ var refreshing_pastes = false;
 function refreshPosts(deletionForce=false) {
     if (refreshing_pastes) { return; }
     if ($('#errorModal').is(':visible') && !deletionForce) {
-        if ($('#errorModal').data("error_type") == "pastes-reload-fail") {
+        if ($('#errorModal').data("error_type") != "pastes-reload-fail") {
             return; // Don't refresh while error modal open
         }
     }
