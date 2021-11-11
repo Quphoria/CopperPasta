@@ -517,7 +517,9 @@ function refreshPosts(deletionForce=false) {
         },
         success: (data) => {
             try {
-                assert(data);
+                if (!data) {
+                    throw new Error("Empty Response");
+                }
                 var createdPosts = 0;
                 if (Array.isArray(data)) {
                     for (paste of data) {
@@ -546,7 +548,7 @@ function refreshPosts(deletionForce=false) {
                     scrapbook_id = ""; // Prevent further pastes
                     $("#deleteScrapbook").prop("disabled", true);
                 } else {
-                    assert(false);
+                    throw new Error("Unknown response");
                 }
                 if (createdPosts) {
                     $("#posts-scroll-wrapper").animate({scrollTop: 0}, 1000);
