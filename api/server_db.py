@@ -133,9 +133,8 @@ def check_scrapbook_exists(name):
 def delete_scrapbook(name):
     con = connect()
     with closing(con.cursor()) as cur:
+        cur.execute("DELETE FROM Pastes WHERE ScrapbookID = (SELECT ScrapbookID FROM Scrapbooks WHERE name = %s);", (name,))
         cur.execute("DELETE FROM Scrapbooks WHERE name = %s;", (name,))
-        # Delete orphaned pastes
-        cur.execute("DELETE FROM Pastes WHERE ScrapbookID NOT IN (SELECT ScrapbookID FROM Scrapbooks);")
         con.commit()
     con.close()
 
