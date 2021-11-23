@@ -5,3 +5,6 @@ __pycache__/
 *.db
 *.secret
 pasta.conf
+
+api/env/
+node_modules/
