@@ -35,8 +35,11 @@ $(function() {
             showNotification("Copied.");
         }
     });
-    $("#scrapbookNameInput").change(() => {
-        $("#scrapbookNameInput").val($("#scrapbookNameInput").val().toLowerCase());
+    $('#scrapbookNameInput').on('input', (e) => {
+        $("#scrapbookNameInput").val($("#scrapbookNameInput").val().toLowerCase().replaceAll(" ", "-"));
+    });
+    $("#scrapbookNameInput").change((e) => {
+        $("#scrapbookNameInput").val($("#scrapbookNameInput").val().toLowerCase().replaceAll(" ", "-"));
     });
     $('html').on('dragover', (e) => {
         e.preventDefault();
