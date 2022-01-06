@@ -1,4 +1,4 @@
-# PasteWebsite
+# Copper Pasta
 
 There are currently 2 branches, master and sqlite3  
   
