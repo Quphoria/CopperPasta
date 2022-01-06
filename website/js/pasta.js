@@ -35,10 +35,10 @@ $(function() {
             showNotification("Copied.");
         }
     });
-    $('#scrapbookNameInput').on('input', function() {
+    $('#scrapbookNameInput').on('input', (e) => {
         $("#scrapbookNameInput").val($("#scrapbookNameInput").val().toLowerCase().replaceAll(" ", "-"));
     });
-    $("#scrapbookNameInput").change((d) => {
+    $("#scrapbookNameInput").change((e) => {
         $("#scrapbookNameInput").val($("#scrapbookNameInput").val().toLowerCase().replaceAll(" ", "-"));
     });
     $('html').on('dragover', (e) => {
