@@ -322,7 +322,7 @@ function createFilePost(file, info) {
         dl_btn_elem.prop("disabled", !file_type_warn_check_elem.is(":checked"));
     });
     if (!(every_dl_dangerous || mimeType == "" || mimeType.startsWith("application"))) {
-        file_type_warn_elem.prop("hidden", true);
+        file_type_warn_elem.attr('style','display:none !important');
         dl_btn_elem.prop("disabled", false);
     }
     newPost.children('.card-header').append(createCardHeader(info));
