@@ -9,6 +9,7 @@ debug_port = 5000
 secure_cookies = True
 cookie_path = "/api/"
 cors_origin = "https://pasta.quphoria.co.uk"
+require_auth = True
 
 MAX_CONTENT_LENGTH = 32 * 1024 * 1024 # 32MB max content length
 
@@ -41,10 +42,26 @@ def _build_cors_preflight_response():
     return response
 
 app_username = "user"
-with open(os.path.join(sys.path[0], "auth.secret"), "r") as f:
-    app_password = f.readline().strip()
+app_password = ""
+try:
+    with open(os.path.join(sys.path[0], "auth.json.secret"), "r") as f:
+        auth_config = json.load(f)
+        app_password = auth_config["app_password"]
+        assert len(app_password) > 0, "app_password empty"
+        require_auth = auth_config["require_auth"]
+except:
+    print("Error loading auth config: (app_password cannot be empty)")
+    default_auth_config = {
+        "app_password": "",
+        "require_auth": True
+    }
+    with open(os.path.join(sys.path[0], "auth.json.secret"), "w") as f:
+        json.dump(default_auth_config, f)
+    sys.exit(1)
 
 def check_auth_headers(request):
+    if not require_auth:
+        return True
     auth = request.cookies.get("auth")
 
     return (request.authorization and \
@@ -180,7 +197,8 @@ def api_auth():
         auth = request.args.get('auth')
         if check_auth_headers(request) or (auth and auth == app_password):
             resp = gen_resp(200, None)
-            resp.set_cookie("auth", app_password, expires=getCookieExpiration(), secure=secure_cookies, path=cookie_path)
+            if require_auth: # don't leak app_password when auth is not required
+                resp.set_cookie("auth", app_password, expires=getCookieExpiration(), secure=secure_cookies, path=cookie_path)
             return resp
     return gen_resp(500, None)
 
