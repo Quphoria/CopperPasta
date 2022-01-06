@@ -14,6 +14,8 @@ var uuid = "";
 var scrapbook_id = "";
 var last_scrapbook = undefined;
 
+var every_dl_dangerous = false;
+
 $(function() {
     $("#content").bind("paste", handlePaste);
     $("#previewModalImagePreviewData").click(openImageInNewTab);
@@ -319,8 +321,8 @@ function createFilePost(file, info) {
     file_type_warn_check_elem.change(() => {
         dl_btn_elem.prop("disabled", !file_type_warn_check_elem.is(":checked"));
     });
-    if (!(mimeType == "" || mimeType.startsWith("application"))) {
-        file_type_warn_elem.hide();
+    if (!(every_dl_dangerous || mimeType == "" || mimeType.startsWith("application"))) {
+        file_type_warn_elem.prop("hidden", true);
         dl_btn_elem.prop("disabled", false);
     }
     newPost.children('.card-header').append(createCardHeader(info));
