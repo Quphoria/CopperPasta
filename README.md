@@ -6,7 +6,7 @@ As I wish to make the project more expandable and a flat database such as sqlite
 I have decided to make the master branch for use with mysql,  
 while keeping the sqlite3 branch for allowing users to tinker with the project without the need to setup a database
 
-# LICENSE
+# License
   
 Copper Pasta (c) by Quphoria  
   
