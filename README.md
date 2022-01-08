@@ -11,7 +11,7 @@ while keeping the sqlite3 branch for allowing users to tinker with the project w
 Copper Pasta (c) by Quphoria  
   
 Copper Pasta is licensed under a  
-Creative Commons Attribution-ShareAlike 4.0 International License.  
+Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License.  
   
 You should have received a copy of the license along with this work.  
-If not, see <http://creativecommons.org/licenses/by-sa/4.0/>.  
+If not, see <https://creativecommons.org/licenses/by-nc-sa/4.0/>.  
