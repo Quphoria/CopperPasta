@@ -11,7 +11,7 @@ cookie_path = "/api/"
 cors_origin = "https://pasta.quphoria.co.uk"
 require_auth = True
 
-MAX_CONTENT_LENGTH = 32 * 1024 * 1024 # 32MB max content length
+MAX_CONTENT_LENGTH = 64 * 1024 * 1024 # 64MB max content length
 
 server_db.config_file = os.path.join(sys.path[0], "pasta.conf")
 
