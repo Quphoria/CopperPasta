@@ -1,0 +1,15 @@
+version: '3'
+
+services:
+  pasta:
+    image: quphoria/copper-pasta
+    volumes:
+      - "./pasta.conf:/pasta/api/pasta.conf"
+    ports:
+      - "8999:80/tcp"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "1"
+    restart: unless-stopped
