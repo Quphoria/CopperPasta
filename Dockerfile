@@ -1,4 +1,4 @@
-FROM alpine:3.14
+FROM alpine:3.16
 
 RUN apk add --no-cache dos2unix python3 py3-pip nginx bash
 
