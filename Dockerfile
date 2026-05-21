@@ -1,6 +1,6 @@
 FROM alpine:3.16
 
-RUN apk add --no-cache dos2unix python3 py3-pip nginx bash
+RUN apk add --no-cache python3 py3-pip nginx bash
 
 # build  + install python mysqlclient
 RUN apk add --no-cache mariadb-connector-c-dev \
@@ -26,8 +26,6 @@ COPY ./website ./website
 
 COPY ./docker-nginx.conf /etc/nginx/nginx.conf
 COPY ./docker-entrypoint.sh .
-
-RUN dos2unix docker-entrypoint.sh
 
 WORKDIR /pasta/api
 
