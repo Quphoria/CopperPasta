@@ -202,8 +202,12 @@ function showPreviewModal(title, body, type, data) {
             $("#previewModalTextPreviewData").text(data);
             break;
         case "image":
-            $("#previewModalImagePreviewData").attr("src", data.slice(data.indexOf("|")+1));
-            $("#previewModalImagePreviewData").attr("download", data.slice(0, data.indexOf("|")));
+            if (data.indexOf("|") >= 0) {
+                $("#previewModalImagePreviewData").attr("src", data.slice(data.indexOf("|")+1));
+                $("#previewModalImagePreviewData").attr("download", atob(data.slice(0, data.indexOf("|"))));
+            } else {
+                $("#previewModalImagePreviewData").attr("src", data);
+            }
             break;
         case "file":
             $("#previewModalFilePreviewFilename").text(data.name);
@@ -280,8 +284,12 @@ function createImagePost(image, info) {
     var newPost = $($("#imagePost").html());
     newPost.attr("data-id", info.id.toString());
     var image_elem = newPost.children('.card-body');
-    image_elem.attr("src", image.slice(image.indexOf("|")+1));
-    image_elem.attr("download", image.slice(0, image.indexOf("|")));
+    if (image.includes("|")) {
+        image_elem.attr("src", image.slice(image.indexOf("|")+1));
+        image_elem.attr("download", atob(image.slice(0, image.indexOf("|"))));
+    } else {
+        image_elem.attr("src", image);
+    }
     newPost.children('.card-header').append(createCardHeader(info));
     newPost.find(".copy-icon").click((event) => {
         const img = $(event.target).closest(".image-post").find(".post-image").attr("src");
@@ -379,7 +387,10 @@ function openImageInNewTab(event) {
     let w = window.open('about:blank');
     let image = new Image();
     image.src = event.target.src;
-    image.download = event.target.download;
+    let filename = event.target.getAttribute("download");
+    if (filename) {
+        image.setAttribute("download", filename);
+    }
     image.style = "margin: auto;";
     setTimeout(function(){
     w.document.write(image.outerHTML);
